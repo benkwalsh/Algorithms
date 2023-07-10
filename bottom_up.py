@@ -3,6 +3,40 @@
     in the file 'bottom_up_implementation_question.png'
 """
 
+def lcs(s1, s2):
+    """ returns the maximum length subsequence of the
+        two strings s1 and s2. 
+    """
+    n1 = len(s1) 
+    n2 = len(s2)
+    table = [(n2 + 1) * [0] for _ in range(n1 + 1)]
+
+    for i in range(n1 + 1):
+        for j in range(n2 + 1):
+            if i == 0 or j == 0:
+                table[i][j] = 0
+            elif s1[i-1] == s2[j-1]:
+                table[i][j] = (table[i-1][j-1]) + 1
+            else: # s1[i] != s2[j]
+                table[i][j] = max(table[i][j-1], table[i-1][j], table[i-1][j-1])
+    
+    subseq = ""
+    i = n1
+    j = n2 
+    while i > 0 and j > 0:
+        if s1[i-1] == s2[j-1]:
+            subseq += s1[i-1]
+            i -= 1
+            j -= 1
+        else:
+            if table[i-1][j] >= table[i][j-1]:
+                i -= 1
+            else:
+                j -= 1
+
+    return subseq[::-1]
+
+
 def line_edits(s1, s2):
     """ takes the previous and current versions of a string and
         applies the edit-distance algorithm to output (operation,
@@ -48,17 +82,18 @@ def line_edits(s1, s2):
                 else:
                     operations[i][j] = "D"
 
-# while loop which implements the line_edits output
+    
+# Implementing the output of line_edits and lcs:
     i = np - 1
     j = nc - 1                     
     lines = []
-    while i > 0 or j > 0:
+    while i > 0 and j > 0:
         operation = operations[i][j]
 
         if operation == "C":
+            lines.append(("C", previous[i - 1], current[j - 1]))
             i -= 1
             j -= 1
-            lines.append(("C", previous[i], current[j]))
         elif operation == "D":
             lines.append(("D", previous[i - 1], ""))
             i -= 1
@@ -66,40 +101,41 @@ def line_edits(s1, s2):
             lines.append(("I", "", current[j - 1]))
             j -= 1
         else:  # "S"
-            lines.append(("S", previous[i - 1], current[j - 1]))
+            left = ""
+            right = ""
+
+            lcsubseq = lcs(previous[i - 1], current[j - 1])
+            for c in previous[i - 1]: # left 
+                if len(lcsubseq) > 0 and lcsubseq[0] == c:
+                    lcsubseq = lcsubseq[1:]
+                    left += c
+                else:
+                    left += f"[[{c}]]"
+
+            lcsubseq = lcs(previous[i - 1], current[j - 1]) 
+            for c in current[j - 1]: # right
+                if len(lcsubseq) > 0 and lcsubseq[0] == c:
+                    lcsubseq = lcsubseq[1:]
+                    right += c
+                else:
+                    right += f"[[{c}]]"
+            
+            lines.append(("S", left, right))
             i -= 1
             j -= 1
 
     return lines[::-1]
 
 
-
-# A couple test cases that I used:
-# Test 1:
-s1 = "Line1\nLine2\nLine3\nLine4\n"
-s2 = "Line1\nLine3\nLine4\nLine5\n"
+# A test case that I used:
+s1 = "Line1\nLine 2a\nLine3\nLine4\n"
+s2 = "Line5\nline2\nLine3\n"
 table = line_edits(s1, s2)
 for row in table:
     print(row)
-
+    
 # Should print:
-# ('C', 'Line1', 'Line1')
-# ('D', 'Line2', '')
-# ('C', 'Line3', 'Line3')
-# ('C', 'Line4', 'Line4')
-# ('I', '', 'Line5')
-
-# Test 2:
-s1 = "Line1\nLine2\nLine3\nLine4\n"
-s2 = "Line5\nLine4\nLine3\n"
-table = line_edits(s1, s2)
-for row in table:
-    print(row)
-  
-# Should print:
-# ('S', 'Line1', 'Line5')
-# ('S', 'Line2', 'Line4')
+# ('S', 'Line[[1]]', 'Line[[5]]')
+# ('S', '[[L]]ine[[ ]]2[[a]]', '[[l]]ine2')
 # ('C', 'Line3', 'Line3')
 # ('D', 'Line4', '')
-
-
