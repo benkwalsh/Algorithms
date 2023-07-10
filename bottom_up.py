@@ -1,6 +1,6 @@
 """ In this program we were asked to improve the time complexity of 
     an algorithm using Dynamic Programming. The question is included
-    in the file 'bottom_up_implementation_question'
+    in the file 'bottom_up_implementation_question.png'
 """
 
 def line_edits(s1, s2):
