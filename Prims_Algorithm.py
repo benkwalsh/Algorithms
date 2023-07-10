@@ -46,6 +46,7 @@ def adjacency_list(graph_str):
     return adj_list
 
 
+#prims implementation
 def prim(adj_list):
     """ Implementation of Prim's Algorithm """
     n_verts = len(adj_list)
@@ -78,6 +79,7 @@ def prim(adj_list):
     return edges
 
 
+# main function
 def  which_segments(city_map):
     """ Takes the map of the city and returns a list of road segments that
         must be cleared so that there is a clear path between any two locations
@@ -85,4 +87,23 @@ def  which_segments(city_map):
     """
     adj_list = adjacency_list(city_map)
     return prim(adj_list)
+
+
+#A couple test cases I used:
+city_map = """\
+U 3 W
+0 1 1
+2 1 2
+2 0 4
+"""
+print(sorted(which_segments(city_map)))
+# What should print:
+# [(0, 1), (1, 2)]
+
+city_map = """\
+U 1 W
+"""
+print(sorted(which_segments(city_map)))
+# What should print:
+# []
 
